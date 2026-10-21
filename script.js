@@ -472,4 +472,215 @@ function renderRecent() {
     container.replaceChildren();
 
     const recent = [...data.transactions]
-        .sort
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .slice(0, 5);
+
+    if (!recent.length) {
+        container.textContent = "Hələ əməliyyat yoxdur.";
+        return;
+    }
+
+    recent.forEach(t => {
+        container.append(transactionElement(t));
+    });
+}
+
+// STATİSTİKA
+
+function sumTransactions(type, startDate) {
+    return data.transactions
+        .filter(t => t.type === type)
+        .filter(t => new Date(t.date) >= startDate)
+        .reduce((sum, t) => sum + Number(t.amount), 0);
+}
+
+function renderStats() {
+    const now = new Date();
+
+    const today = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate()
+    );
+
+    const week = new Date(today);
+    week.setDate(today.getDate() - ((today.getDay() + 6) % 7));
+
+    const month = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        1
+    );
+
+    const values = {
+        todayIncome: sumTransactions("income", today),
+        todayExpense: sumTransactions("expense", today),
+        weekIncome: sumTransactions("income", week),
+        weekExpense: sumTransactions("expense", week),
+        monthIncome: sumTransactions("income", month),
+        monthExpense: sumTransactions("expense", month),
+        statsMonthIncome: sumTransactions("income", month),
+        statsMonthExpense: sumTransactions("expense", month)
+    };
+
+    Object.entries(values).forEach(([id, value]) => {
+        $(id).textContent = money(value);
+    });
+}
+
+// PUL YIĞMA HƏDƏFİ
+
+function openGoal() {
+    $("goalNameInput").value = data.goal.name || "";
+    $("goalAmountInput").value = data.goal.amount || "";
+    $("goalModal").classList.add("active");
+}
+
+function saveGoal() {
+    const name = $("goalNameInput").value.trim();
+    const amount = Number($("goalAmountInput").value);
+
+    if (!name || !validAmount($("goalAmountInput").value)) {
+        alert("Hədəfin adını və düzgün məbləği daxil et.");
+        return;
+    }
+
+    const previous = JSON.stringify(data);
+
+    data.goal = {
+        name,
+        amount: round(amount)
+    };
+
+    if (!saveData()) {
+        data = JSON.parse(previous);
+        return;
+    }
+
+    closeModals();
+    renderAll();
+}
+
+function renderGoal() {
+    const total = Number(data.card) + Number(data.cash);
+    const target = Number(data.goal.amount || 0);
+
+    $("goalName").textContent =
+        data.goal.name || "Hədəf təyin edilməyib";
+
+    $("goalProgress").textContent =
+        money(total) + " / " + money(target);
+
+    const percent = target > 0
+        ? Math.max(0, Math.min(100, total / target * 100))
+        : 0;
+
+    $("progressFill").style.width = percent + "%";
+}
+
+// EHTİYAT NÜSXƏ
+
+function exportData() {
+    const blob = new Blob(
+        [JSON.stringify(data, null, 2)],
+        { type: "application/json" }
+    );
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "asqa-backup.json";
+
+    document.body.append(link);
+    link.click();
+    link.remove();
+
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function importData(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function () {
+        try {
+            const imported = JSON.parse(reader.result);
+
+            if (
+                !imported ||
+                !Array.isArray(imported.transactions) ||
+                !Number.isFinite(imported.card) ||
+                !Number.isFinite(imported.cash) ||
+                imported.card < 0 ||
+                imported.cash < 0
+            ) {
+                throw new Error("Yanlış məlumat");
+            }
+
+            for (const t of imported.transactions) {
+                if (
+                    !["income", "expense"].includes(t.type) ||
+                    !["card", "cash"].includes(t.account) ||
+                    !Number.isFinite(t.amount) ||
+                    t.amount <= 0 ||
+                    typeof t.description !== "string" ||
+                    !Number.isFinite(new Date(t.date).getTime())
+                ) {
+                    throw new Error("Yanlış əməliyyat");
+                }
+            }
+
+            if (!confirm("Hazırkı məlumatlar əvəz edilsin?")) {
+                return;
+            }
+
+            const previous = JSON.stringify(data);
+
+            data = {
+                ...emptyData(),
+                ...imported,
+                goal: {
+                    name: "",
+                    amount: 0,
+                    ...(imported.goal || {})
+                },
+                transfers: Array.isArray(imported.transfers)
+                    ? imported.transfers
+                    : []
+            };
+
+            if (!saveData()) {
+                data = JSON.parse(previous);
+                return;
+            }
+
+            renderAll();
+            alert("Məlumatlar bərpa edildi.");
+
+        } catch (error) {
+            alert("Ehtiyat nüsxə düzgün deyil.");
+        }
+    };
+
+    reader.readAsText(file);
+    event.target.value = "";
+}
+
+// BÜTÜN MƏLUMATLARI YENİLƏ
+
+function renderAll() {
+    renderBalances();
+    renderStats();
+    renderGoal();
+    renderRecent();
+    renderHistory("income");
+    renderHistory("expense");
+}
+
+// SAYTI BAŞLAT
+
+loadData();
+renderAll();
