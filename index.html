@@ -1,58 +1,528 @@
 <!DOCTYPE html>
 <html lang="az">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#080b13">
-<title>Asqa — Şəxsi Maliyyə</title>
 
-<style>
-:root{
-  color-scheme:dark;
-  --bg:#080b13;
-  --glass:rgba(255,255,255,.065);
-  --border:rgba(255,255,255,.12);
-  --text:#f5f7ff;
-  --muted:#929bad;
-  --green:#4ade80;
-  --red:#fb7185;
-  --blue:#83adff;
-}
-*{box-sizing:border-box}
-body{
-  margin:0;
-  min-height:100vh;
-  background:
-    radial-gradient(ellipse at 10% 0%,#183052 0%,transparent 38%),
-    radial-gradient(ellipse at 100% 25%,#191d3b 0%,transparent 36%),
-    var(--bg);
-  color:var(--text);
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  padding-bottom:105px;
-}
-button,input,select{font:inherit}
-button{cursor:pointer;border:0}
-header{
-  max-width:680px;
-  margin:auto;
-  padding:28px 20px 8px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-.logo{font-size:30px;font-weight:850;letter-spacing:-1.5px}
-.logo span{color:var(--blue)}
-.subtitle{font-size:12px;color:var(--muted);margin-top:3px}
-.badge{
-  padding:9px 12px;
-  border:1px solid var(--border);
-  border-radius:30px;
-  background:var(--glass);
-  color:#c9d8ff;
-  font-size:12px;
-}
-main{max-width:680px;margin:auto;padding:14px}
-.glass{
-  background:var(--glass);
-  border:1px solid var(--border);
-  border-radius:23
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <meta name="theme-color" content="#080b13">
+
+    <title>Asqa — Şəxsi Maliyyə Paneli</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <script src="script.js" defer></script>
+</head>
+
+<body>
+
+    <!-- SAYTIN BAŞLIĞI -->
+
+    <header class="header">
+
+        <div>
+            <div class="logo">
+                Asqa<span>.</span>
+            </div>
+
+            <div class="subtitle">
+                Şəxsi Maliyyə Paneli
+            </div>
+        </div>
+
+        <div class="badge">
+            ● Şəxsi panel
+        </div>
+
+    </header>
+
+
+    <main class="container">
+
+        <!-- ANA SƏHİFƏ -->
+
+        <section id="home" class="page active">
+
+            <!-- BALANSLAR -->
+
+            <div class="balances">
+
+                <div class="glass total-card">
+
+                    <div class="label">
+                        💰 Ümumi balans
+                    </div>
+
+                    <div class="total-value"
+                         id="totalBalance">
+                        0.00 ₼
+                    </div>
+
+                </div>
+
+
+                <div class="side-balances">
+
+                    <div class="glass small-card">
+
+                        <div class="label">
+                            💳 Kart
+                        </div>
+
+                        <div class="small-value"
+                             id="cardBalance">
+                            0.00 ₼
+                        </div>
+
+                    </div>
+
+
+                    <div class="glass small-card">
+
+                        <div class="label">
+                            💵 Nağd
+                        </div>
+
+                        <div class="small-value"
+                             id="cashBalance">
+                            0.00 ₼
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ƏSAS DÜYMƏLƏR -->
+
+            <div class="actions">
+
+                <button class="action income-action"
+                        onclick="openTransaction('income')">
+                    ＋ Artır
+                </button>
+
+                <button class="action expense-action"
+                        onclick="openTransaction('expense')">
+                    − Azalt
+                </button>
+
+                <button class="action transfer-action"
+                        onclick="openTransfer()">
+                    ⇄ Köçür
+                </button>
+
+            </div>
+
+
+            <!-- AYLIQ HESABAT -->
+
+            <h2>Bu ay</h2>
+
+            <div class="summary">
+
+                <div class="glass summary-card">
+
+                    <div class="label">
+                        🟢 Qazanc
+                    </div>
+
+                    <div class="summary-number green"
+                         id="monthIncome">
+                        0.00 ₼
+                    </div>
+
+                </div>
+
+
+                <div class="glass summary-card">
+
+                    <div class="label">
+                        🔴 Xərc
+                    </div>
+
+                    <div class="summary-number red"
+                         id="monthExpense">
+                        0.00 ₼
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- PUL YIĞMA HƏDƏFİ -->
+
+            <h2>🎯 Pul yığma hədəfi</h2>
+
+            <div class="glass goal-card">
+
+                <div class="label" id="goalName">
+                    Hədəf təyin edilməyib
+                </div>
+
+                <div class="goal-amount"
+                     id="goalProgress">
+                    0.00 ₼ / 0.00 ₼
+                </div>
+
+                <div class="progress">
+
+                    <div class="progress-fill"
+                         id="progressFill">
+                    </div>
+
+                </div>
+
+                <button class="secondary"
+                        onclick="openGoal()">
+                    Hədəfi dəyiş
+                </button>
+
+            </div>
+
+
+            <!-- SON ƏMƏLİYYATLAR -->
+
+            <h2>Son əməliyyatlar</h2>
+
+            <div id="recentTransactions"></div>
+
+        </section>
+
+
+
+        <!-- QAZANC TARİXÇƏSİ -->
+
+        <section id="incomePage" class="page">
+
+            <h2>🟢 Qazanc tarixçəsi</h2>
+
+            <button class="primary"
+                    onclick="openTransaction('income')">
+                + Qazanc əlavə et
+            </button>
+
+            <input
+                id="incomeSearch"
+                class="search"
+                type="search"
+                placeholder="Qazanc axtar..."
+                oninput="renderHistory('income')"
+            >
+
+            <div id="incomeHistory"></div>
+
+        </section>
+
+
+
+        <!-- XƏRC TARİXÇƏSİ -->
+
+        <section id="expensePage" class="page">
+
+            <h2>🔴 Xərc tarixçəsi</h2>
+
+            <button class="primary"
+                    onclick="openTransaction('expense')">
+                + Xərc əlavə et
+            </button>
+
+            <input
+                id="expenseSearch"
+                class="search"
+                type="search"
+                placeholder="Xərc axtar..."
+                oninput="renderHistory('expense')"
+            >
+
+            <div id="expenseHistory"></div>
+
+        </section>
+
+
+
+        <!-- STATİSTİKA -->
+
+        <section id="statsPage" class="page">
+
+            <h2>📊 Statistika</h2>
+
+            <div class="glass stat-row">
+                <span>Bugünkü qazanc</span>
+                <strong class="green"
+                        id="todayIncome">0.00 ₼</strong>
+            </div>
+
+            <div class="glass stat-row">
+                <span>Bugünkü xərc</span>
+                <strong class="red"
+                        id="todayExpense">0.00 ₼</strong>
+            </div>
+
+            <div class="glass stat-row">
+                <span>Həftəlik qazanc</span>
+                <strong id="weekIncome">0.00 ₼</strong>
+            </div>
+
+            <div class="glass stat-row">
+                <span>Həftəlik xərc</span>
+                <strong id="weekExpense">0.00 ₼</strong>
+            </div>
+
+            <div class="glass stat-row">
+                <span>Aylıq qazanc</span>
+                <strong class="green"
+                        id="statsMonthIncome">0.00 ₼</strong>
+            </div>
+
+            <div class="glass stat-row">
+                <span>Aylıq xərc</span>
+                <strong class="red"
+                        id="statsMonthExpense">0.00 ₼</strong>
+            </div>
+
+            <div class="glass stat-row">
+                <span>Ümumi balans</span>
+                <strong id="statsBalance">0.00 ₼</strong>
+            </div>
+
+
+            <!-- TƏNZİMLƏMƏLƏR -->
+
+            <h2>⚙️ Tənzimləmələr</h2>
+
+            <button class="settings-button"
+                    onclick="exportData()">
+                💾 Ehtiyat nüsxə çıxar
+            </button>
+
+            <button class="settings-button"
+                    onclick="document.getElementById('importFile').click()">
+                📥 Ehtiyat nüsxəni bərpa et
+            </button>
+
+            <input
+                type="file"
+                id="importFile"
+                accept=".json"
+                style="display:none"
+                onchange="importData(event)"
+            >
+
+            <p class="note">
+                Məlumatlar brauzerin yaddaşında saxlanılır.
+                Brauzer məlumatlarını silməzdən əvvəl
+                ehtiyat nüsxə çıxar.
+            </p>
+
+        </section>
+
+    </main>
+
+
+
+    <!-- ALT NAVİQASİYA -->
+
+    <nav class="bottom-nav">
+
+        <button class="active"
+                onclick="showPage('home',this)">
+            🏠<br>Ana səhifə
+        </button>
+
+        <button onclick="showPage('incomePage',this)">
+            🟢<br>Qazanclar
+        </button>
+
+        <button onclick="showPage('expensePage',this)">
+            🔴<br>Xərclər
+        </button>
+
+        <button onclick="showPage('statsPage',this)">
+            📊<br>Statistika
+        </button>
+
+    </nav>
+
+
+
+    <!-- GƏLİR / XƏRC PƏNCƏRƏSİ -->
+
+    <div class="modal" id="transactionModal">
+
+        <div class="modal-box">
+
+            <h2 class="modal-title"
+                id="transactionTitle">
+                Yeni əməliyyat
+            </h2>
+
+            <label class="form-label">
+                Məbləğ (AZN)
+            </label>
+
+            <input
+                type="number"
+                id="amountInput"
+                min="0.01"
+                step="0.01"
+                placeholder="0.00"
+            >
+
+            <label class="form-label"
+                   id="descriptionLabel">
+                Açıqlama
+            </label>
+
+            <input
+                type="text"
+                id="descriptionInput"
+                maxlength="150"
+                placeholder="Məsələn: Maaş"
+            >
+
+            <label class="form-label">
+                Hesab seç
+            </label>
+
+            <select id="accountInput">
+
+                <option value="card">
+                    💳 Kart
+                </option>
+
+                <option value="cash">
+                    💵 Nağd
+                </option>
+
+            </select>
+
+            <button class="primary"
+                    onclick="saveTransaction()">
+                Təsdiqlə
+            </button>
+
+            <button class="cancel"
+                    onclick="closeModals()">
+                Ləğv et
+            </button>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- KÖÇÜRMƏ PƏNCƏRƏSİ -->
+
+    <div class="modal" id="transferModal">
+
+        <div class="modal-box">
+
+            <h2 class="modal-title">
+                ⇄ Pul köçürməsi
+            </h2>
+
+            <label class="form-label">
+                Məbləğ (AZN)
+            </label>
+
+            <input
+                type="number"
+                id="transferAmount"
+                min="0.01"
+                step="0.01"
+                placeholder="0.00"
+            >
+
+            <label class="form-label">
+                Haradan?
+            </label>
+
+            <select id="transferFrom">
+
+                <option value="card">💳 Kart</option>
+                <option value="cash">💵 Nağd</option>
+
+            </select>
+
+            <label class="form-label">
+                Haraya?
+            </label>
+
+            <select id="transferTo">
+
+                <option value="cash">💵 Nağd</option>
+                <option value="card">💳 Kart</option>
+
+            </select>
+
+            <button class="primary"
+                    onclick="saveTransfer()">
+                Köçür
+            </button>
+
+            <button class="cancel"
+                    onclick="closeModals()">
+                Ləğv et
+            </button>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- PUL YIĞMA HƏDƏFİ PƏNCƏRƏSİ -->
+
+    <div class="modal" id="goalModal">
+
+        <div class="modal-box">
+
+            <h2 class="modal-title">
+                🎯 Pul yığma hədəfi
+            </h2>
+
+            <label class="form-label">
+                Hədəfin adı
+            </label>
+
+            <input
+                type="text"
+                id="goalNameInput"
+                placeholder="Məsələn: Yeni telefon"
+            >
+
+            <label class="form-label">
+                Hədəf məbləği
+            </label>
+
+            <input
+                type="number"
+                id="goalAmountInput"
+                min="0.01"
+                step="0.01"
+                placeholder="1000"
+            >
+
+            <button class="primary"
+                    onclick="saveGoal()">
+                Yadda saxla
+            </button>
+
+            <button class="cancel"
+                    onclick="closeModals()">
+                Ləğv et
+            </button>
+
+        </div>
+
+    </div>
+
+</body>
+  </html>
