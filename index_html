@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#080a10">
+<title>Asqa — Şəxsi Maliyyə Paneli</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 
+                 "Segoe UI", sans-serif;
+    background: #080a10;
+    color: white;
+    padding-bottom: 100px;
+}
+
+header {
+    padding: 25px 20px 15px;
+}
+
+.logo {
+    font-size: 27px;
+    font-weight: 800;
+    letter-spacing: -1px;
+}
+
+.subtitle {
+    color: #888;
+    font-size: 13px;
+    margin-top: 4px;
+}
+
+.container {
+    padding: 15px;
+}
+
+.glass {
+    background: rgba(255,255,255,0.065);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 24px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+.balance-area {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 10px;
+}
+
+.total-card {
+    padding: 20px 15px;
+    background: linear-gradient(
+        145deg,
+        #202942,
+        #111827
+    );
+}
+
+.label {
+    color: #a4a9b8;
+    font-size: 12px;
+}
+
+.total-value {
+    font-size: 25px;
+    font-weight: 800;
+    margin-top: 14px;
+}
+
+.small-balances {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.small-card {
+    padding: 14px;
+    flex: 1;
+}
+
+.small-value {
+    font-size: 17px;
+    font-weight: 700;
+    margin-top: 7px;
+}
+
+.actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+button {
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.action {
+    padding: 17px 5px;
+    border-radius: 17px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.income-btn {
+    background: #143b2c;
+    color: #4ade80;
+}
+
+.expense-btn {
+    background: #421e27;
+    color: #fb7185;
+}
+
+.transfer-btn {
+    background: #1d3050;
+    color: #93c5fd;
+}
+
+.section-title {
+    font-size: 19px;
+    font-weight: 750;
+    margin: 30px 3px 15px;
+}
+
+.summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.summary-card {
+    padding: 18px;
+}
+
+.summary-value {
+    font-size: 23px;
+    font-weight: 750;
+    margin-top: 12px;
+}
+
+.green {
+    color: #4ade80;
+}
+
+.red {
+    color: #fb7185;
+}
+
+.blue {
+    color: #93c5fd;
+}
+
+.transaction {
+    padding: 15px;
+    margin-bottom: 9px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.transaction-title {
+    font-weight: 650;
+    font-size: 14px;
+    overflow-wrap: anywhere;
+}
+
+.transaction-info {
+    color: #888;
+    font-size: 12px;
+    margin-top: 6px;
+}
+
+.transaction-right {
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.transaction-amount {
+    font-weight: 750;
+}
+
+.transaction-buttons {
+    margin-top: 8px;
+    display: flex;
+    gap: 7px;
+    justify-content: flex-end;
+}
+
+.mini-btn {
+    background: #292d38;
+    color: white;
+    border-radius: 8px;
+    padding: 6px 9px;
+    font-size: 11px;
+}
+
+.empty {
+    color: #777;
+    text-align: center;
+    padding: 35px 10px;
+}
+
+nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-around;
+    background: rgba(20,22,31,0.94);
+    border-top: 1px solid #30323b;
+    backdrop-filter: blur(20px);
+    padding: 13px 4px 18px;
+    z-index: 10;
+}
+
+nav button {
+    background: none;
+    color: #aaa;
+    font-size: 12px;
+    padding: 7px;
+}
+
+nav button.active {
+    color: #fff;
+    font-weight: 800;
+}
+
+.page {
+    display: none;
+}
+
+.page.active {
+    display: block;
+}
+
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 100;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-box {
+    background: #1b1e28;
+    width: 100%;
+    max-width: 500px;
+    border-radius: 28px 28px 0 0;
+    padding: 25px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-title {
+    font-size: 22px;
+    font-weight: 750;
+    margin-bottom: 20px;
+}
+
+input, select {
+    width: 100%;
+    background: #292d38;
+    border: 1px solid #404451;
+    border-radius: 13px;
+    color: white;
+    padding: 15px;
+    margin-bottom: 13px;
+    font-size: 15px;
+    outline: none;
+}
+
+input:focus, select:focus {
+    border-color: #80aaff;
+}
+
+.form-label {
+    font-size: 12px;
+    color: #aaa;
+    margin-bottom: 7px;
+    display: block;
+}
+
+.save-btn {
+    width: 100%;
+    background: #387aff;
+    color: white;
+    padding: 17px;
+    border-radius: 15px;
+    font-size: 15px;
+    font-weight: 750;
+    margin-top: 8px;
+}
+
+.cancel-btn {
+    width: 100%;
+    background: transparent;
+    color: #aaa;
+    padding: 15px;
+    margin-top: 8px;
+}
+
+.goal-card {
+    padding: 20px;
+}
+
+.progress-bg {
+    background: #303541;
+    height: 9px;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-top: 15px;
+}
+
+.progress-fill {
+    background: #4ade80;
+    height: 100%;
+    width: 0%;
+    transition: width .3s;
+}
+
+.goal-button {
+    background: #292d38;
+    color: white;
+    padding: 12px;
+    border-radius: 12px;
+    margin-top: 15px;
+}
+
+.settings-button {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 17px;
+    background: #20232e;
+    color: white;
+    border-radius: 14px;
+    margin-bottom: 10px;
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 17px;
+    margin-bottom: 9px;
+}
+
+.stat-row span:first-child {
+    color: #aaa;
+}
+
+.search {
+    margin-bottom: 15px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">Asqa<span class="blue">.</span></div>
+    <div class="subtitle">Şəxsi Maliyyə Paneli</div>
+</header>
+
+<main class="container">
+
+    <!-- ANA SƏHİFƏ -->
+    <section id="home" class="page active">
+
+        <div class="balance-area">
+
+            <div class="glass total-card">
+                <div class="label">💰 Ümumi balans</div>
+                <div class="total-value" id="totalBalance">
+                    0.00 ₼
+                </div>
+            </div>
+
+            <div class="small-balances">
+
+                <div class="glass small-card">
+                    <div class="label">💳 Kart</div>
+                    <div class="small-value" id="cardBalance">
+                        0.00 ₼
+                    </div>
+                </div>
+
+                <div class="glass small-card">
+                    <div class="label">💵 Nağd</div>
+                    <div class="small-value" id="cashBalance">
+                        0.00 ₼
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="action income-btn"
+                    onclick="openTransaction('income')">
+                ＋ Artır
+            </button>
+
+            <button class="action expense-btn"
+                    onclick="openTransaction('expense')">
+                − Azalt
+            </button>
+
+            <button class="action transfer-btn"
+                    onclick="openTransfer()">
+                ⇄ Köçür
+            </button>
+        </div>
+
+        <h2 class="section-title">Bu ay</h2>
+
+        <div class="summary">
+            <div class="glass summary-card">
+                <div class="label">🟢 Qazanc</div>
+                <div class="summary-value green" id="monthIncome">
+                    0.00 ₼
+                </div>
+            </div>
+
+            <div class="glass summary-card">
+                <div class="label">🔴 Xərc</div>
+                <div class="summary-value red" id="monthExpense">
+                    0.00 ₼
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">🎯 Pul yığma hədəfi</h2>
+
+        <div class="glass goal-card">
+            <div class="label" id="goalName">
+                Hədəf təyin edilməyib
+            </div>
+
+            <div class="summary-value" id="goalProgress">
+                0.00 ₼ / 0.00 ₼
+            </div>
+
+            <div class="progress-bg">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <button class="goal-button" onclick="openGoal()">
+                Hədəfi dəyiş
+            </button>
+        </div>
+
+        <h2 class="section-title">Son əməliyyatlar</h2>
+        <div id="recentTransactions"></div>
+
+    </section>
+
+    <!-- QAZANCLAR -->
+    <section id="incomePage" class="page">
+
+        <h2 class="section-title">🟢 Qazanc tarixçəsi</h2>
+
+        <button class="save-btn"
+                onclick="openTransaction('income')">
+            + Qazanc əlavə et
+        </button>
+
+        <br><br>
+
+        <input class="search"
+               placeholder="Qazanc axtar..."
+               oninput="renderHistory('income', this.value)">
+
+        <div id="incomeHistory"></div>
+
+    </section>
+
+    <!-- XƏRCLƏR -->
+    <section id="expensePage" class="page">
+
+        <h2 class="section-title">🔴 Xərc tarixçəsi</h2>
+
+        <button class="save-btn"
+                onclick="openTransaction('expense')">
+            + Xərc əlavə et
+        </button>
+
+        <br><br>
+
+        <input class="search"
+               placeholder="Xərc axtar..."
+               oninput="renderHistory('expense', this.value)">
+
+        <div id="expenseHistory"></div>
+
+    </section>
+
+    <!-- STATİSTİKA -->
+    <section id="statsPage" class="page">
+
+        <h2 class="section-title">📊 Statistika</h2>
+
+        <div class="glass stat-row">
+            <span>Bugünkü qaz
